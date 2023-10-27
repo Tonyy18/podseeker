@@ -11,14 +11,18 @@ f = open("keywords.txt")
 keywords = f.read().strip().split("\n")
 f.close()
 
+f = open("credentials.json")
+credentials = json.loads(f.read())
+f.close()
+
 selenium = seleniumUtils.Selenium()
 selenium.get("https://app.podseeker.co/")
 
 
 user_input = selenium.element_is_visible("#user_email")
 pass_input = selenium.element_is_visible("#user_password")
-user_input.send_keys("toni.isotalo@hotmail.com")
-pass_input.send_keys("tonttu16")
+user_input.send_keys(credentials["email"])
+pass_input.send_keys(credentials["password"])
 selenium.element_is_visible("#kt-login_signin_submit").click()
 
 
@@ -32,7 +36,21 @@ def get_data():
     try:
         selenium.elements_are_visible("#podCastModal")
         contact = selenium.get_elements("#podCastModal .contact-details")
-        results = {}
+        results = {
+            "title": "",
+            "emails": [],
+            "genre": "",
+            "location": "",
+            "latest_episode": "",
+            "episodes_count": "",
+            "listeners": "",
+            "rating": "",
+            "ad_cost_per_episode": "",
+            "active": "",
+            "description": "",
+            "url": "",
+            "episodes": []
+        }
         emails = []
         for e in contact:
             em = selenium.get_from_element(e, ".mb-2").get_attribute("innerText")
@@ -149,6 +167,8 @@ try:
                     continue
                 selenium.driver.execute_script("$(arguments[0]).removeClass('podcast-card').hide()", card)
                 data = get_data()
+                if(data == None):
+                    continue
                 new_row = writer.write_row(data, writing_row)
                 writing_row = new_row + 1
                 #print(json.dumps(data, indent=4))
