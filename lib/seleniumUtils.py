@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
         
 class Selenium:
     def __init__(self, gui=True):
@@ -13,7 +14,14 @@ class Selenium:
             op.add_argument('--headless')
             op.add_argument("--window-size=1920,1080")
         op.add_argument("--start-maximized");
-        self.driver = webdriver.Chrome(options=op)
+        try:
+            self.driver = webdriver.Chrome(options=op)
+        except WebDriverException:
+            print("Chrome driver not found")
+            try:
+                self.driver = webdriver.Safari()
+            except:
+                print("Safari driver not found")
     
     def element_is_visible(self, css, timeout=10):
         try:
